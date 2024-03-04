@@ -6,21 +6,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Project Management System</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
+        /* Reset */
+        * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        /* Global Styles */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+        }
+
+        a {
+            text-decoration: none;
+            color: black;
+        }
+
+        /* Header Styles */
         header {
             background-color: #333;
             color: #fff;
-            padding: 20px;
+            padding: 40px;
             text-align: center;
         }
 
+        /* Navigation Styles */
         nav {
             background-color: #007bff;
             color: #fff;
@@ -40,23 +52,18 @@
         }
 
         nav ul li a {
-            text-decoration: none;
-
             background-color: #dc3545;
             color: #fff;
             padding: 5px 3px;
-            border-radius: 2px;
+            border-radius: 10px;
+            
         }
 
         nav ul li a:hover {
-
             background-color: #c82333;
         }
 
-        .current {
-            font-weight: bold;
-        }
-
+        /* Container Styles */
         .container {
             margin: 20px;
             padding: 20px;
@@ -65,10 +72,7 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
 
-        h2 {
-            margin-top: 0;
-        }
-
+        /* Project List Styles */
         .project-list {
             margin-top: 20px;
             padding: 10px;
@@ -81,23 +85,22 @@
             margin: 0;
         }
 
+        /* Project Actions Styles */
         .project-actions {
             margin-top: 10px;
-
             display: flex;
             justify-content: space-between;
             align-items: center;
-            height: 100%;
         }
 
         .project-actions a {
-
             text-decoration: none;
             color: #007bff;
             margin-right: 10px;
         }
 
-        a.delete-btn {
+        a.delete-btn,
+        a.createProject {
             background-color: #dc3545;
             color: #fff;
             border: none;
@@ -110,6 +113,7 @@
             background-color: #c82333;
         }
 
+        /* Profile Styles */
         .profile {
             margin: 10px;
             position: absolute;
@@ -121,7 +125,7 @@
             background-color: #ccc;
             height: 80px;
             padding: 10px;
-
+            border-radius: 10px;
         }
 
         .profile:hover div {
@@ -129,12 +133,11 @@
         }
 
         .profile div {
-
             margin-left: 10px;
             display: flex;
             flex-direction: column;
             justify-content: space-evenly;
-            height: 90px;
+            height: 90%;
             display: none;
         }
 
@@ -144,38 +147,30 @@
             color: #fff;
             border: none;
             padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        a.createProject{
-            text-decoration: none;
-            background-color: #dc3545;
-            color: #fff;
-            border: none;
-            padding: 5px 10px;
+            margin-bottom: 5px;
             border-radius: 4px;
             cursor: pointer;
         }
 
         .profile img {
-            width: 90px;
-            height: auto;
+            height: 100%;
             border-radius: 50px;
         }
-        .project{
-            display: flex;
-            width: 100%;
+
+        /* Project Styles */
+        .project {
             display: flex;
             justify-content: space-between;
             align-items: center;
+            width: 100%;
             margin-bottom: 5px;
         }
-        .project:hover{
 
+        .project:hover {
             background-color: rgba(255, 255, 255, 0.8);
         }
-        
-        .project a{
+
+        .project a {
             text-decoration: none;
             color: black;
             display: flex;
@@ -183,12 +178,41 @@
             justify-content: flex-start;
             align-items: center;
         }
-        .project a:hover{
-        }
-        .project a p{
+
+        .project a p {
             margin-right: 10px;
         }
 
+        .projectData {
+            height: 50vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            
+        }
+
+        .projectData h1 {
+            padding: 50px;
+        }
+        
+        .projectData p {
+            margin-bottom:20px ;
+
+        }
+        
+        .projectData p{
+            font-weight: bold;
+            margin-right: 5px;
+            background:none;
+        }
+        .projectData p span{
+            font-weight: 100;
+            margin-left: 10px;
+            background-color: rgba(234, 94, 94, 0.577);
+            padding: 5px;
+            border-radius: 10px;
+        }
     </style>
 </head>
 
@@ -196,7 +220,9 @@
 
     <header>
 
-        <h1>Project Management System</h1>
+        <a href={{url_for("close_project")}}>
+            <h1>Project Management System</h1>
+        </a>
         <div class="profile">
             <img src="{{ url_for('static', filename='media/profile_img.jpg') }}" alt="asd">
             <div>
@@ -206,10 +232,10 @@
 
         </div>
     </header>
-
+    {% if project %}
     <nav>
         <ul>
-            <li><a href="#">Task Management</a></li>
+            <li><a href={{url_for('task_management')}}>Task Management</a></li>
             <li><a href="#">Scheduling</a></li>
             <li><a href="#">Collaboration</a></li>
             <li><a href="#">Progress Tracking</a></li>
@@ -218,26 +244,28 @@
             <li><a href="#">Customization</a></li>
         </ul>
     </nav>
+    {% endif%}
 
+    {% if not project %}
     <div class="container">
         <h2>Projects</h2>
         <div class="project-list">
             {%for i in projects%}
             <div class="project">
-                <a href="">
-                    
+                <a href={{url_for("open_project", projectID=i.id)}}>
+
                     <p>{{i.id}}</p>
                     <p>{{i.projectID}}</p>
                     <p>{{i.ProductCode}}</p>
                 </a>
                 <div class="project-actions">
-                    
+
                     <a class="delete-btn" href={{url_for("delete_project", projectID=i.id)}}>Delete</a>
                 </div>
             </div>
 
             {%endfor%}
-            
+
             <!-- Add more projects as needed -->
         </div>
 
@@ -245,6 +273,20 @@
         <a class="createProject" href={{url_for('project_info')}}>Create Project</a>
     </div>
 
+    {% else %}
+    <div class="projectData">
+        <h1>Project</h1>
+        <p>Project ID:<span>{{project[0]}}</span></p>
+
+        <p>Product Code:<span>{{project[1]}}</span></p>
+
+        <p>Description:<span>{{project[2]}}</span></p>
+
+        <p>Costumers:<span>{{project[3]}}</span></p>
+
+    </div>
+
+    {% endif%}
 </body>
 
 </html>

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px 20px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-end;
+            width: 100%;
+            min-height: 100vh;
+            overflow-x: hidden;
+
+        }
+
+        .tasks {
+            width: 78%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: stretch;
+        }
+
+
+        .sidebar {
+            width: 20%;
+            margin-right: 20px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            position: fixed;
+            left: 20px;
+            top: 70px;
+        }
+
+        .sidebar h2 {
+            margin-top: 0;
+        }
+
+        .sidebar a {
+            background-color: #007bff;
+            text-decoration: none;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 3px;
+
+            transition: background-color 0.3s ease;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+        }
+
+        .sidebar a:hover {
+
+            background-color: #0258b4;
+        }
+
+        .task-list {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .task-list h2 {
+            margin-top: 0;
+        }
+
+        .task {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task div:first-child {
+            display: flex;
+            width: 50%;
+            justify-content: flex-start;
+        }
+
+        .task div:first-child p {
+            margin-right: 20px;
+        }
+
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .task-actions a {
+            background-color: #007bff;
+            text-decoration: none;
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 3px;
+
+            transition: background-color 0.3s ease;
+        }
+
+        .task-actions a:hover {
+
+            background-color: #0258b4;
+        }
+
+
+        .create-task {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 100%;
+        }
+
+        .create-task label {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .create-task input[type="text"],
+        .create-task textarea {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+
+        .create-task input[type="submit"] {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .create-task input[type="submit"]:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="sidebar">
+        <a href={{url_for('desktop')}}>← Back</a>
+        <h2>Project Data</h2>
+        <p><strong>Project Name:</strong>{ Project X}</p>
+        <p><strong>Start Date:</strong> January 1, 2024</p>
+        <p><strong>End Date:</strong> December 31, 2024</p>
+        <p><strong>Status:</strong> In Progress</p>
+    </div>
+    <div class="tasks">
+        <div class="create-task">
+            <h2>Create New Task</h2>
+            <form action="#" method="post">
+                <label for="taskName">Task Name:</label>
+                <input type="text" id="taskName" name="taskName" required>
+
+                <label for="taskDescription">Task Description:</label>
+                <textarea id="taskDescription" name="taskDescription" rows="4" required></textarea>
+
+                <input type="submit" value="Create Task">
+            </form>
+        </div>
+
+        <div class="task-list">
+            <h2>"To Do" Tasks</h2>
+            {% for task in tasks%}
+            {%if task.Status=="To Do"%}
+            <div class="task">
+                <div>
+                    <p>{{task.Name}}</p>
+                    <p>{{task.Description}}</p>
+                    <p>{{task.Status}}</p>
+                </div>
+                <div class="task-actions">
+                    <a href={{url_for("complete_task", taskID=task.id)}}>Done</a>
+                    <a href="">Edit</a>
+                    <a href={{url_for("delete_task", taskID=task.id)}}>Delete</a>
+
+                </div>
+            </div>
+            {%endif%}
+            {%endfor%}
+
+        </div>
+        <div class="task-list">
+            <h2>"Done" Tasks</h2>
+            {% for task in tasks%}
+            {%if task.Status=="Done"%}
+            <div class="task">
+                <div>
+                    <p>{{task.Name}}</p>
+                    <p>{{task.Description}}</p>
+                    <p>{{task.Status}}</p>
+                </div>
+                <div class="task-actions">
+                    <a href={{url_for("uncomplete_task", taskID=task.id)}}>To Do</a>
+                    <a href="">Edit</a>
+                    <a href={{url_for("delete_task", taskID=task.id)}}>Delete</a>
+
+                </div>
+            </div>
+            {%endif%}
+            {%endfor%}
+
+        </div>
+    </div>
+</body>
+
+</html>

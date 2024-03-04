@@ -39,3 +39,21 @@ class Projects(Base):
 
         return self.id,self.projectID, self.ProductCode,self.Description,self.Contacts
     
+class Tasks(Base):
+    __tablename__ = 'Task'
+    id = Column(Integer, primary_key=True)
+    project_ID = Column(Integer, unique=False)
+    Name=    Description = Column(String(20), unique=False)
+    Description = Column(Text, unique=False)
+    Status =Column(String(20), unique=False)
+
+    def __init__(self, projec_tID=None, Name=None, Description=None,Status=None ):
+        self.project_ID = projec_tID
+        self.Description = Description
+        self.Status = Status
+        self.Name = Name
+
+    def __repr__(self):
+
+        return self.id,self.Name,self.project_ID,self.Description,self.Status
+    

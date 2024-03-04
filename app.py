@@ -3,13 +3,12 @@ from markupsafe import escape
 from source.database import init_db
 from source.database import db_session
 from source.UserMng import createUser, UserLogin
-from source.ProjectMng import CreateProject, showAllProjects, DeleteProject
+from source.ProjectMng import CreateProject, showAllProjects, DeleteProject, showProject
+from source.ProjectMng import  CreateTask, showAllTasks,DeleteTask, CompleteTask, UncompleteTask
 from config import secret_key
 
 app=Flask(__name__)
 app.config['SECRET_KEY'] = secret_key
-
-
 
 
 @app.route("/")
@@ -62,7 +61,10 @@ def desktop():
     if not 'user' in session:
         return redirect(url_for('index'))
     
-    return render_template('desktop.html', user=session['user'], projects=showAllProjects())
+    if "project" in session:
+        project=[session['project'],session['project_ProductCode'],session['project_Description'],session['project_Contacts']]
+        return render_template('desktop.html', project=project, projects=showAllProjects())
+    return render_template('desktop.html', project=False, projects=showAllProjects())
 
 @app.route('/project', methods=['GET','POST'])
 def project_info():
@@ -82,6 +84,51 @@ def delete_project(projectID):
     print(projectID)
     DeleteProject(projectID)
     return redirect(url_for('desktop'))
+
+@app.route('/open_project/<projectID>')
+def open_project(projectID):
+    session['project_id']=showProject(projectID).id
+    session["project"]=showProject(projectID).projectID
+    session["project_ProductCode"]=showProject(projectID).ProductCode
+    
+    session["project_Description"]=showProject(projectID).Description
+    session["project_Contacts"]=showProject(projectID).Contacts
+    return redirect(url_for('desktop'))
+    
+@app.route('/close_project')
+def close_project():
+    if 'project' in session:
+        session.pop("project")
+    return redirect(url_for('desktop'))
+
+@app.route('/task_management', methods=['GET','POST'])
+def task_management():
+    if request.method=='POST':
+        task_name = request.form['taskName']
+        task_description = request.form['taskDescription']
+        CreateTask(session['project_id'],task_name,task_description)
+    
+    tasks=showAllTasks(session['project_id'])
+    print(tasks[0].Status)
+    return  render_template('taskMng.html', tasks=tasks)
+
+@app.route('/delete_task/<taskID>')
+def delete_task(taskID):
+    print(taskID)
+    DeleteTask(taskID)
+    return redirect(url_for('task_management'))
+
+@app.route('/complete_task/<taskID>')
+def complete_task(taskID):
+    print(taskID)
+    CompleteTask(taskID)
+    return redirect(url_for('task_management'))
+
+@app.route('/uncomplete_task/<taskID>')
+def uncomplete_task(taskID):
+    print(taskID)
+    UncompleteTask(taskID)
+    return redirect(url_for('task_management'))
 
 if __name__=="__main__":
     init_db()

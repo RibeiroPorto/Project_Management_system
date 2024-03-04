@@ -13,6 +13,7 @@ def showAllUsers():
     print(User.query.all())
     print('\n')
 
+
 def UserLogin(user,passwd):
     isUser = User.query.filter_by(name=user,passwd=passwd).first()
     

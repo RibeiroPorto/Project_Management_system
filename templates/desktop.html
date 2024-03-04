@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        header {
+            background-color: #333;
+            color: #fff;
+            padding: 20px;
+            text-align: center;
+        }
+
+        nav {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 20px;
+        }
+
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+        }
+
+        nav ul li {
+            display: inline;
+            margin-right: 20px;
+        }
+
+        nav ul li a {
+            text-decoration: none;
+
+            background-color: #dc3545;
+            color: #fff;
+            padding: 5px 3px;
+            border-radius: 2px;
+        }
+
+        nav ul li a:hover {
+
+            background-color: #c82333;
+        }
+
+        .current {
+            font-weight: bold;
+        }
+
+        .container {
+            margin: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+        }
+
+        .project-list {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+
+        .project-list p {
+            margin: 0;
+        }
+
+        .project-actions {
+            margin-top: 10px;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 100%;
+        }
+
+        .project-actions a {
+
+            text-decoration: none;
+            color: #007bff;
+            margin-right: 10px;
+        }
+
+        a.delete-btn {
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+
+        .profile {
+            margin: 10px;
+            position: absolute;
+            top: 0;
+            left: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #ccc;
+            height: 80px;
+            padding: 10px;
+
+        }
+
+        .profile:hover div {
+            display: flex;
+        }
+
+        .profile div {
+
+            margin-left: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-evenly;
+            height: 90px;
+            display: none;
+        }
+
+        .profile div a {
+            text-decoration: none;
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        a.createProject{
+            text-decoration: none;
+            background-color: #dc3545;
+            color: #fff;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .profile img {
+            width: 90px;
+            height: auto;
+            border-radius: 50px;
+        }
+        .project{
+            display: flex;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .project:hover{
+
+            background-color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .project a{
+            text-decoration: none;
+            color: black;
+            display: flex;
+            width: 70%;
+            justify-content: flex-start;
+            align-items: center;
+        }
+        .project a:hover{
+        }
+        .project a p{
+            margin-right: 10px;
+        }
+
+    </style>
+</head>
+
+<body>
+
+    <header>
+
+        <h1>Project Management System</h1>
+        <div class="profile">
+            <img src="{{ url_for('static', filename='media/profile_img.jpg') }}" alt="asd">
+            <div>
+                <a href="">Profile</a>
+                <a href="/logoff">log off</a>
+            </div>
+
+        </div>
+    </header>
+
+    <nav>
+        <ul>
+            <li><a href="#">Task Management</a></li>
+            <li><a href="#">Scheduling</a></li>
+            <li><a href="#">Collaboration</a></li>
+            <li><a href="#">Progress Tracking</a></li>
+            <li><a href="#">Resource Management</a></li>
+            <li><a href="#">Reporting</a></li>
+            <li><a href="#">Customization</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <h2>Projects</h2>
+        <div class="project-list">
+            {%for i in projects%}
+            <div class="project">
+                <a href="">
+                    
+                    <p>{{i.id}}</p>
+                    <p>{{i.projectID}}</p>
+                    <p>{{i.ProductCode}}</p>
+                </a>
+                <div class="project-actions">
+                    
+                    <a class="delete-btn" href={{url_for("delete_project", projectID=i.id)}}>Delete</a>
+                </div>
+            </div>
+
+            {%endfor%}
+            
+            <!-- Add more projects as needed -->
+        </div>
+
+        <h2>Create or Edit Project</h2>
+        <a class="createProject" href={{url_for('project_info')}}>Create Project</a>
+    </div>
+
+</body>
+
+</html>

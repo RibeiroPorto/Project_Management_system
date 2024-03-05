@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text
+from sqlalchemy import Column, Integer, String, Text, DateTime
 from source.database import Base
 
 class User(Base):
@@ -19,7 +19,7 @@ class User(Base):
 
     def __repr__(self):
 
-        return self.name, self.email,self.role,self.registry
+        return self.name, self.email,self.role,self.registry, self.id
     
 class Projects(Base):
     __tablename__ = 'Projects'
@@ -56,4 +56,27 @@ class Tasks(Base):
     def __repr__(self):
 
         return self.id,self.Name,self.project_ID,self.Description,self.Status
+    
+
+class Meeting(Base):
+    __tablename__ = 'Meetings'
+    id = Column(Integer, primary_key=True)
+    Scheduler_id = Column(Integer, unique=False)
+    Invitee_id =    Description = Column(String(20), unique=False)
+    Project = Column(String(20))
+    DateTime = Column(DateTime(timezone=False))
+    Description = Column(Text, unique=False)
+    Status = Column(String(20))
+
+    def __init__(self, Scheduler_id=None, Invitee_id=None,Project=None,DateTime=None, Description=None,Status=None ):
+        self.Scheduler_id = Scheduler_id
+        self.Invitee_id = Invitee_id
+        self.Project=Project
+        self.DateTime=DateTime
+        self.Description = Description
+        self.Status = Status
+
+    def __repr__(self):
+
+        return self.id,self.Scheduler_id,self.Invitee_id,self.Project,self.DateTime,self.Description,self.Status
     

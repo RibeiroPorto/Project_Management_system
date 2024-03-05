@@ -2,9 +2,10 @@ from flask import Flask, url_for,request, redirect, render_template, session
 from markupsafe import escape
 from source.database import init_db
 from source.database import db_session
-from source.UserMng import createUser, UserLogin
+from source.UserMng import createUser, UserLogin, showAllUsers
 from source.ProjectMng import CreateProject, showAllProjects, DeleteProject, showProject
 from source.ProjectMng import  CreateTask, showAllTasks,DeleteTask, CompleteTask, UncompleteTask
+from source.MeetingMng import Schedule_meeting,ScheduledMeetings ,InviteeMeetings
 from config import secret_key
 
 app=Flask(__name__)
@@ -34,6 +35,7 @@ def Login():
         else:
             session['user']=login.name
             session['role']=login.role
+            session['userID']=login.id
             
             return redirect(url_for('desktop'))
     return render_template('login.html')
@@ -110,7 +112,8 @@ def task_management():
     
     tasks=showAllTasks(session['project_id'])
     print(tasks[0].Status)
-    return  render_template('taskMng.html', tasks=tasks)
+    project=[session['project'],session['project_ProductCode'],session['project_Description'],session['project_Contacts']]
+    return  render_template('taskMng.html', tasks=tasks,project=project)
 
 @app.route('/delete_task/<taskID>')
 def delete_task(taskID):
@@ -128,7 +131,29 @@ def complete_task(taskID):
 def uncomplete_task(taskID):
     print(taskID)
     UncompleteTask(taskID)
+    
     return redirect(url_for('task_management'))
+
+
+################################################################33
+#Meeting Scheduling
+@app.route("/meeting", methods=['GET','POST'])
+def meeting():
+    if request.method=="POST":
+        scheduler=session['userID']
+        invitee= request.form['user']
+        project=request.form['project']
+        dateTime = request.form['meetingDateTime']
+        description = request.form['meetingDescription']
+        print(scheduler,invitee,project,dateTime,description)
+        Schedule_meeting(scheduler, invitee,project,dateTime, description)
+       # Schedule_meeting()
+    Users= showAllUsers()
+    Projects= showAllProjects()
+    scheduled=ScheduledMeetings(session['userID'])
+    invite=InviteeMeetings(session['userID'])
+
+    return render_template('meeting.html',users=Users, projects=Projects, scheduled=scheduled, invite=invite)
 
 if __name__=="__main__":
     init_db()

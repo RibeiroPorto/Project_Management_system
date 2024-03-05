@@ -10,8 +10,7 @@ def createUser(user,email,passwd,role,registry):
 
 def showAllUsers():
     print('\n')
-    print(User.query.all())
-    print('\n')
+    return User.query.all()
 
 
 def UserLogin(user,passwd):

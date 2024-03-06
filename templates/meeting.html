@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,6 +12,22 @@
             margin: 0;
             padding: 20px;
         }
+        body a.Backbtn{
+            background-color: #007bff;
+            text-decoration: none;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 3px;
+
+            transition: background-color 0.3s ease;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+        }
+        body a.Backbtn:hover{
+            
+            background-color: #0258b4;
+        }
         form {
             background-color: #fff;
             padding: 20px;
@@ -19,11 +36,13 @@
             max-width: 400px;
             margin: 0 auto;
         }
+
         label {
             font-weight: bold;
             display: block;
             margin-bottom: 8px;
         }
+
         select,
         input[type="datetime-local"],
         textarea {
@@ -34,7 +53,10 @@
             border-radius: 4px;
             box-sizing: border-box;
         }
-        input[type="submit"] {
+
+        input[type="submit"],
+        .btn {
+            text-decoration: none;
             background-color: #007bff;
             color: #fff;
             border: none;
@@ -43,9 +65,15 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
-        input[type="submit"]:hover {
+
+        input[type="submit"]:hover,
+        .btn:hover {
             background-color: #0056b3;
         }
+        .btn.deactivate{
+            background-color: grey;
+        }
+
         .panel {
             background-color: #fff;
             padding: 20px;
@@ -53,9 +81,11 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             margin-top: 20px;
         }
+
         .panel h2 {
             margin-top: 0;
         }
+
         .meeting {
             margin-bottom: 10px;
             padding: 10px;
@@ -65,79 +95,94 @@
             justify-content: space-between;
             align-items: center;
         }
+
         .meeting-description {
             margin-bottom: 5px;
         }
+
         .meeting-actions {
             display: flex;
             gap: 10px;
         }
+
     </style>
 </head>
+
 <body>
-
-<form action="#" method="post">
-    <h2>Meeting Scheduling</h2>
-    <label for="user">Select User:</label>
-    <select id="user" name="user">
-        {% for user in users%}
-        
-        <option value={{user.id}}>{{user.name}}</option>
-        {% endfor%}
-    </select>
-
-    <label for="project">Select Project:</label>
-    <select id="project" name="project">
-        {% for project in projects%}
-        
-        <option value={{project.id}}>{{project.projectID}}</option>
-        {% endfor%}
-    </select>
-
-    <label for="meetingDateTime">Select Date and Time:</label>
-    <input type="datetime-local" id="meetingDateTime" name="meetingDateTime" >
-
-    <label for="meetingDescription">Meeting Description:</label>
-    <textarea id="meetingDescription" name="meetingDescription" rows="4"></textarea>
-
-    <input type="submit" value="Schedule Meeting">
-</form>
-
-<div class="panel">
-    <h2>Your Scheduled Meetings</h2>
-    {% for schedule in scheduled%}
-    <div class="meeting">
-        <div>
-            <p>{{schedule.Invitee_id}}- {{schedule.project}}</p>
-            <p>Date/Time: January 1, 2024 10:00 AM</p>
-        </div>
-        <div class="meeting-actions">
-            <button>Edit</button>
-            <button>Delete</button>
-        </div>
-    </div>
-    {% endfor %}
     
-    <!-- Add more scheduled meetings here -->
-</div>
+    <a class="Backbtn" href={{url_for('desktop')}}>← Back</a>
+    <form action="#" method="post">
+        <h2>Meeting Scheduling</h2>
+        <label for="user">Select User:</label>
+        <select id="user" name="user">
+            {% for user in users%}
 
-<div class="panel">
-    <h2>Meetings You've Been Invited To</h2>
-    {%for inv in invite%}
-    <div class="meeting">
-        <div>
-            <p>User 2 - Project 2</p>
-            <p>Date/Time: January 2, 2024 2:00 PM</p>
-            <p>Status: Pending</p>
+            <option value={{user.id}}>{{user.name}}</option>
+            {% endfor%}
+        </select>
+
+        <label for="project">Select Project:</label>
+        <select id="project" name="project">
+            {% for project in projects%}
+
+            <option value={{project.projectID}}>{{project.projectID}}</option>
+            {% endfor%}
+        </select>
+
+        <label for="meetingDateTime">Select Date and Time:</label>
+        <input type="datetime-local" id="meetingDateTime" name="meetingDateTime">
+
+        <label for="meetingDescription">Meeting Description:</label>
+        <textarea id="meetingDescription" name="meetingDescription" rows="4"></textarea>
+
+        <input type="submit" value="Schedule Meeting">
+    </form>
+
+    <div class="panel">
+        <h2>Your Scheduled Meetings</h2>
+        {% for schedule in scheduled%}
+        <div class="meeting">
+            <div>
+                <p><span>Invitee</span>: {{ schedule.Invitee}}
+                    - <span>Project:</span> {{schedule.Project}}</p>
+                <p> <span>Data/Horario:</span> {{schedule.DateTime}} - <span>STATUS:</span> {{schedule.Status}} </p>
+                <p><span>Descrição:</span> {{schedule.Description}}</p>
+            </div>
+            <div class="meeting-actions">
+                <a href={{url_for('delete_meeting',meet_id=schedule.id)}} class="btn">Delete</a>
+            </div>
         </div>
-        <div class="meeting-actions">
-            <button class="accept-btn">Accept</button>
-            <button class="reject-btn">Reject</button>
-        </div>
+        {% endfor %}
+
     </div>
-    {%endfor%}
-    <!-- Add more meetings the user has been invited to as needed -->
-</div>
+
+    <div class="panel">
+        <h2>Meetings You've Been Invited To</h2>
+        {% for invit in invite%}
+        <div class="meeting">
+            <div>
+                <p><span>Scheduler</span>: {{ invit.Scheduler}}
+                    - <span>Project:</span> {{invit.Project}}</p>
+                <p> <span>Data/Horario:</span> {{invit.DateTime}} - <span>STATUS:</span> {{invit.Status}} </p>
+                <p><span>Descrição:</span> {{invit.Description}}</p>
+            </div>
+            
+            <div class="meeting-actions">
+                {% if invit.Status=="Pending" %}
+                <a href={{url_for('accept_meeting',meet_id=invit.id)}} class="btn">Accept</a>
+                <a href={{url_for('reject_meeting',meet_id=invit.id)}} class="btn">Reject</a>
+
+                {% else %}
+                <a  class="btn deactivate">Accept</a>
+                <a  class="btn deactivate">Reject</a>
+
+                {% endif %}
+
+            </div>
+        </div>
+        {% endfor %}
+    </div>
 
 </body>
+
 </html>

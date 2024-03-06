@@ -21,6 +21,7 @@ def DeleteProject(projectID):
 def showProject(projectID):
     return  Projects.query.filter_by(id=projectID).first()
 
+
 #tasks
 def CreateTask(project_ID,Name,Description):
     U = Tasks(project_ID,Name,Description,Status="To Do")

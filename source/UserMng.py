@@ -18,3 +18,7 @@ def UserLogin(user,passwd):
     
     return isUser
 
+def Username(id):
+    isUser = User.query.filter_by(id=id).first()
+    
+    return isUser.name

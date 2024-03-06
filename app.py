@@ -1,11 +1,15 @@
 from flask import Flask, url_for,request, redirect, render_template, session
 from markupsafe import escape
+from datetime import datetime
+import matplotlib.pyplot as plt
+from io import BytesIO
+import base64
 from source.database import init_db
 from source.database import db_session
-from source.UserMng import createUser, UserLogin, showAllUsers
+from source.UserMng import createUser, UserLogin, showAllUsers, Username
 from source.ProjectMng import CreateProject, showAllProjects, DeleteProject, showProject
 from source.ProjectMng import  CreateTask, showAllTasks,DeleteTask, CompleteTask, UncompleteTask
-from source.MeetingMng import Schedule_meeting,ScheduledMeetings ,InviteeMeetings
+from source.MeetingMng import Schedule_meeting,ScheduledMeetings ,InviteeMeetings, DeletMeetings, ChangeMeetingsStatus
 from config import secret_key
 
 app=Flask(__name__)
@@ -101,6 +105,11 @@ def open_project(projectID):
 def close_project():
     if 'project' in session:
         session.pop("project")
+        session.pop("project_id")
+        session.pop("project_ProductCode")
+        session.pop('project_Description')
+        session.pop('project_Contacts')
+
     return redirect(url_for('desktop'))
 
 @app.route('/task_management', methods=['GET','POST'])
@@ -111,25 +120,22 @@ def task_management():
         CreateTask(session['project_id'],task_name,task_description)
     
     tasks=showAllTasks(session['project_id'])
-    print(tasks[0].Status)
     project=[session['project'],session['project_ProductCode'],session['project_Description'],session['project_Contacts']]
     return  render_template('taskMng.html', tasks=tasks,project=project)
 
 @app.route('/delete_task/<taskID>')
 def delete_task(taskID):
-    print(taskID)
     DeleteTask(taskID)
+
     return redirect(url_for('task_management'))
 
 @app.route('/complete_task/<taskID>')
 def complete_task(taskID):
-    print(taskID)
     CompleteTask(taskID)
     return redirect(url_for('task_management'))
 
 @app.route('/uncomplete_task/<taskID>')
 def uncomplete_task(taskID):
-    print(taskID)
     UncompleteTask(taskID)
     
     return redirect(url_for('task_management'))
@@ -140,21 +146,82 @@ def uncomplete_task(taskID):
 @app.route("/meeting", methods=['GET','POST'])
 def meeting():
     if request.method=="POST":
-        scheduler=session['userID']
-        invitee= request.form['user']
+        scheduler_id=session['userID']
+        scheduler=session['user']
+        invitee_id= request.form['user']
+        invitee=Username(request.form['user'])
         project=request.form['project']
         dateTime = request.form['meetingDateTime']
         description = request.form['meetingDescription']
-        print(scheduler,invitee,project,dateTime,description)
-        Schedule_meeting(scheduler, invitee,project,dateTime, description)
+        try:
+            dt_obj = datetime.fromisoformat(dateTime)
+        except:
+            dt_obj=""
+        Schedule_meeting(scheduler,scheduler_id, invitee_id,invitee,project,dt_obj, description)
        # Schedule_meeting()
     Users= showAllUsers()
     Projects= showAllProjects()
     scheduled=ScheduledMeetings(session['userID'])
     invite=InviteeMeetings(session['userID'])
-
     return render_template('meeting.html',users=Users, projects=Projects, scheduled=scheduled, invite=invite)
 
+@app.route("/delete_meeting/<meet_id>")
+def delete_meeting(meet_id):
+    DeletMeetings(meet_id)
+    return redirect(url_for('meeting'))
+
+@app.route("/accept_meeting/<meet_id>")
+def accept_meeting(meet_id):
+    ChangeMeetingsStatus(meet_id,2)
+    return redirect(url_for('meeting'))
+
+@app.route("/reject_meeting/<meet_id>")
+def reject_meeting(meet_id):
+    
+    ChangeMeetingsStatus(meet_id,3)
+    return redirect(url_for('meeting'))
+
+#########################################################
+# Progress Tracking
+
+@app.route('/progress')
+def progress():
+    if 'project_id' in session:
+        tasks=showAllTasks(session['project_id'])
+        project=session['project']
+        todo=0
+        done=0
+        onhold=0
+        for task in tasks:
+            if task.Status=="Done":
+                done+=1
+            if task.Status=="To Do":
+                todo+=1
+            if task.Status=="On Hold":
+                onhold+=1
+        # Generate the pie chart
+        labels = ["Done","To Do", "On Hold"]
+        sizes = [todo, done, onhold]
+        explode = (0, 0, 0)  # explode the 2nd slice
+        fig = plt.figure(figsize=(6, 6))
+        ax = fig.add_subplot(111, projection='3d')
+        ax.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%', startangle=90, wedgeprops=dict(width=0.4))
+        ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle
+        plt.tight_layout()
+
+        # Save the pie chart as PNG image in memory
+        img = BytesIO()
+        plt.savefig(img, format='png')
+        img.seek(0)
+
+        # Encode the PNG image as base64
+        img_base64 = base64.b64encode(img.getvalue()).decode('utf-8')
+        
+
+        print(todo,done,onhold)
+        return render_template('progressTracking.html',tasks=[{'tasks':tasks, 'project':project}], img=img_base64)
+    
+    return render_template('progressTracking.html')
 if __name__=="__main__":
     init_db()
     app.run(debug=True,host="0.0.0.0")

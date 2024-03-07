@@ -1,17 +1,25 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Progress Tracking</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
             font-family: Arial, sans-serif;
             background-color: #f4f4f4;
             margin: 0;
             padding: 20px;
         }
+
         .project {
             background-color: #fff;
             padding: 10px;
@@ -20,75 +28,128 @@
             margin-bottom: 20px;
             display: flex;
             flex-wrap: wrap;
-            width: 50%;
+            width: 450px;
+            height: 220px;
+            
+            overflow: hidden;
         }
+
         .project h2 {
             margin-top: 0;
             width: 100%;
             font-size: 16px;
         }
+
         .task-container {
-            width: 50%;
-            height: 50%;
+            width: 40%;
+            height: 90%;
             overflow-y: auto;
+            margin-right: 20px;
         }
+
         .task {
             margin-bottom: 5px;
-            padding: 5px;
+            padding: 2px;
             border: 1px solid #ccc;
             border-radius: 4px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 50%;
-            height: 50%;
+            width: 97%;
+
         }
+        .task-status.On.Hold{
+            background-color: grey;
+        }
+        .task-status.To.Do{
+            background-color: yellow;
+        }
+        .task-status.Done{
+            background-color: green;
+        }
+
         .task-description {
-            flex: 1;
+
             margin-right: 5px;
-            font-size: 14px;
+            font-size: 10px;
         }
+
         .task-status {
-            min-width: 80px;
+            min-width: 50px;
             text-align: center;
-            font-size: 14px;
+            font-size: 10px;
         }
+
         .chart-container {
             width: 50%;
-            height: 50%;
+            height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
         }
-        .chart-container img{
-            width: 300px;
-            height: 300px;
+
+        .chart-container img {
+            width: 100%;
+            height: auto;
+        }
+        body>div:first-child{
+            height: 50px;
+        }
+        body div .Backbtn{
+            background-color: #007bff;
+            text-decoration: none;
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 3px;
+
+            transition: background-color 0.3s ease;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+        }
+        body div .Backbtn:hover{
+            
+            background-color: #0258b4;
+        }
+        body > div:nth-child(2){
+            display: flex;
+            justify-content: space-evenly;
+            flex-wrap: wrap;
         }
     </style>
 </head>
-<body>
-{%for task in tasks %}
-<div class="project">
-    <div class="task-container">
-        <h2>{{task['projects']}}</h2>
-        {%for item in task['tasks']%}
-        <div class="task">
-            
-            <div class="task-description">
-                <p>Task 1: {{item.Name}}</p>
-            </div>
-            <div class="task-status completed">{{item.Status}}</div>
-        </div>
-        {% endfor %}
-    </div>
-    <div class="chart-container">
-        <img src=" data:image/png;base64,{{ img }}" alt="Pie Chart">
-    </div>
-</div>
-{% endfor %}
-<script>
-    
-</script>
 
+<body>
+    <div>
+        
+    
+    <a class="Backbtn" href={{url_for('desktop')}}>← Back</a>
+    </div>
+    <div>
+    {%for task in tasks %}
+    <div class="project">
+        <h2>{{task['project']}}</h2>
+        <div class="task-container">
+            
+            {%for item in task['tasks']%}
+            <div class="task ">
+
+                <div class="task-description">
+                    <p>Task 1: {{item.Name}}</p>
+                </div>
+                <div class="task-status {{item.Status}}">{{item.Status}}</div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="chart-container">
+            <img src={{ task['img'] }} alt="Pie Chart">
+        </div>
+    </div>
+    {% endfor %}
+    <script>
+
+    </script>
+</div>
 </body>
+
 </html>

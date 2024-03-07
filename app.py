@@ -18,7 +18,8 @@ app.config['SECRET_KEY'] = secret_key
 
 @app.route("/")
 def index():
-    
+    if "user" in session:
+        return redirect(url_for('desktop'))
     return render_template('index.html')
 
 @app.teardown_appcontext
@@ -141,6 +142,8 @@ def uncomplete_task(taskID):
     return redirect(url_for('task_management'))
 
 
+
+
 ################################################################33
 #Meeting Scheduling
 @app.route("/meeting", methods=['GET','POST'])
@@ -202,11 +205,14 @@ def progress():
         # Generate the pie chart
         labels = ["Done","To Do", "On Hold"]
         sizes = [todo, done, onhold]
+        if todo==0 and done==0 and onhold==0:
+            return render_template('progressTracking.html',tasks=[{'tasks':tasks, 'project':project,"img":url_for('static', filename='media/image.png')}])
         explode = (0, 0, 0)  # explode the 2nd slice
-        fig = plt.figure(figsize=(6, 6))
-        ax = fig.add_subplot(111, projection='3d')
-        ax.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%', startangle=90, wedgeprops=dict(width=0.4))
-        ax.axis('equal')  # Equal aspect ratio ensures that pie is drawn as a circle
+        
+        colors = ['Yellow', 'green', 'grey']  # Define custom colors
+        fig, ax = plt.subplots()
+        ax.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%', startangle=90,  textprops={'fontsize': 20},colors=colors)
+        ax.axis('equal')  
         plt.tight_layout()
 
         # Save the pie chart as PNG image in memory
@@ -215,13 +221,59 @@ def progress():
         img.seek(0)
 
         # Encode the PNG image as base64
+
+        # Encode the PNG image as base64
         img_base64 = base64.b64encode(img.getvalue()).decode('utf-8')
         
-
+        #" data:image/png;base64,{{ img }}"
         print(todo,done,onhold)
-        return render_template('progressTracking.html',tasks=[{'tasks':tasks, 'project':project}], img=img_base64)
-    
+        return render_template('progressTracking.html',tasks=[{'tasks':tasks, 'project':project,"img":f" data:image/png;base64,{ img_base64 }"}])
+    else:
+        projects=showAllProjects()
+        project_data_list=[]
+        for project in projects:
+            tasks=showAllTasks(project.id)
+            project=project.projectID
+            todo=0
+            done=0
+            onhold=0
+            for task in tasks:
+                if task.Status=="Done":
+                    done+=1
+                if task.Status=="To Do":
+                    todo+=1
+                if task.Status=="On Hold":
+                    onhold+=1
+            # Generate the pie chart
+            labels = ["Done","To Do", "On Hold"]
+            sizes = [todo, done, onhold]
+            if todo==0 and done==0 and onhold==0:
+                project_data= {"tasks":tasks,"project":project,"img":url_for('static', filename='media/image.png')}
+                project_data_list.append(project_data)
+                continue
+            explode = (0, 0, 0)  # explode the 2nd slice
+            
+            colors = ['Yellow', 'green', 'grey']  # Define custom colors
+            fig, ax = plt.subplots()
+            ax.pie(sizes, explode=explode, labels=labels, autopct='%1.1f%%', startangle=90,  textprops={'fontsize': 20},colors=colors)
+            ax.axis('equal')  
+            plt.tight_layout()
+
+            # Save the pie chart as PNG image in memory
+            img = BytesIO()
+            plt.savefig(img, format='png')
+            img.seek(0)
+
+            # Encode the PNG image as base64
+
+            # Encode the PNG image as base64
+            img_base64 = base64.b64encode(img.getvalue()).decode('utf-8')
+            project_data= {"tasks":tasks,"project":project,"img":f" data:image/png;base64,{ img_base64 }"}
+            project_data_list.append(project_data)
+        return render_template('progressTracking.html',tasks=project_data_list)
+
     return render_template('progressTracking.html')
+
 if __name__=="__main__":
     init_db()
     app.run(debug=True,host="0.0.0.0")

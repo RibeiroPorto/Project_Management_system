@@ -33,7 +33,6 @@ def Login():
         username=request.form['username']
         password=request.form['password']
         login = UserLogin(username,password)
-        print(login.name)
         if login==None:
             print("login")
             
